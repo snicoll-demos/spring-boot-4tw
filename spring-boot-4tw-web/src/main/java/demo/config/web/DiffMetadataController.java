@@ -1,11 +1,13 @@
 package demo.config.web;
 
+import java.util.List;
 import javax.validation.Valid;
 
 import demo.config.diff.ConfigDiffResult;
 import demo.config.model.ConfigurationDiff;
 import demo.config.model.ConfigurationDiffHandler;
 import demo.config.service.ConfigurationDiffResultLoader;
+import demo.config.springboot.SpringBootVersionService;
 import demo.config.validation.Version;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +16,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class DiffMetadataController {
 
 	private final ConfigurationDiffResultLoader resultLoader;
 
+	private final SpringBootVersionService bootVersionService;
+
 	private final ConfigurationDiffHandler handler;
 
 	@Autowired
-	public DiffMetadataController(ConfigurationDiffResultLoader resultLoader) {
+	public DiffMetadataController(ConfigurationDiffResultLoader resultLoader,
+			SpringBootVersionService bootVersionService) {
 		this.resultLoader = resultLoader;
+		this.bootVersionService = bootVersionService;
 		this.handler = new ConfigurationDiffHandler();
 	}
 
@@ -35,6 +42,12 @@ public class DiffMetadataController {
 		ConfigurationDiff configurationDiff = handler.handle(result);
 
 		return ResponseEntity.ok().eTag(createDiffETag(configurationDiff)).body(configurationDiff);
+	}
+
+	@RequestMapping("/springboot/versions")
+	@ResponseBody
+	public List<String> fetchBootVersions() {
+		return bootVersionService.fetchBootVersions();
 	}
 
 	private String createDiffETag(ConfigurationDiff diff) {

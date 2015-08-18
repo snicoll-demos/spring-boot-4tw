@@ -6,7 +6,7 @@ angular.module('diffApp', ['ngRoute', 'ui.bootstrap'])
     .factory('jQuery', ['$window', function ($window) {
         return $window.jQuery;
     }])
-    .value('springBootVersionURL', '')
+    .value('springBootVersionURL', '/springboot/versions.json')
 
     .config(function ($routeProvider) {
         $routeProvider
@@ -35,9 +35,7 @@ angular.module('diffApp', ['ngRoute', 'ui.bootstrap'])
             };
 
             var fetchBootVersions = function () {
-                var versions = $q.defer();
-                versions.resolve({data:['1.2.5', '1.2.6', '1.3.0.M4']});
-                return versions.promise;
+                return $http.get(springBootVersionURL);
             };
 
             return {
