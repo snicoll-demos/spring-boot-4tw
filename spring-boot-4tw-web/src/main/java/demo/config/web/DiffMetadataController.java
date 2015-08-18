@@ -9,11 +9,11 @@ import demo.config.service.ConfigurationDiffResultLoader;
 import demo.config.validation.Version;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class DiffMetadataController {
@@ -29,11 +29,16 @@ public class DiffMetadataController {
 	}
 
 	@RequestMapping("/diff/{fromVersion}/{toVersion}/")
-	@ResponseBody
-	public ConfigurationDiff diffMetadata(
+	public ResponseEntity<ConfigurationDiff> diffMetadata(
 			@Valid @ModelAttribute DiffRequest diffRequest) throws BindException {
 		ConfigDiffResult result = resultLoader.load(diffRequest.fromVersion, diffRequest.toVersion);
-		return handler.handle(result);
+		ConfigurationDiff configurationDiff = handler.handle(result);
+
+		return ResponseEntity.ok().eTag(createDiffETag(configurationDiff)).body(configurationDiff);
+	}
+
+	private String createDiffETag(ConfigurationDiff diff) {
+		return "\"" + diff.getLeftVersion() + "#" + diff.getRightVersion() + "\"";
 	}
 
 	static class DiffRequest {
