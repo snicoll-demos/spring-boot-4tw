@@ -23,7 +23,8 @@ public class SpringBootVersionService {
 	private final List<String> repositoryUrls;
 
 	public SpringBootVersionService() {
-		RemoteRepository[] repositories = new RemoteRepository[] {AetherDependencyResolver.SPRING_IO_RELEASE};
+		RemoteRepository[] repositories = new RemoteRepository[] {AetherDependencyResolver.SPRING_IO_RELEASE,
+				AetherDependencyResolver.SPRING_IO_MILESTONE};
 		this.dependencyResolver = AetherDependencyResolver.create(false, repositories);
 		this.repositoryUrls = Arrays.asList(repositories).stream()
 				.map(RemoteRepository::getUrl).collect(Collectors.toList());
